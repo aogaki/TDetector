@@ -1,5 +1,3 @@
-#include "TWaveform.hpp"
-
 #include <CAENDigitizer.h>
 
 #include <algorithm>
@@ -7,12 +5,14 @@
 #include <cstring>
 #include <iostream>
 
-TWaveform::TWaveform() : TDigitizer() { InitWaveform(); }
-TWaveform::TWaveform(int h) : TDigitizer(h) { InitWaveform(); }
+#include "TPSD.hpp"
 
-TWaveform::~TWaveform() {}
+TPSD::TPSD() : TDigitizer() { InitPSD(); }
+TPSD::TPSD(int h) : TDigitizer(h) { InitPSD(); }
 
-void TWaveform::InitWaveform()
+TPSD::~TPSD() {}
+
+void TPSD::InitPSD()
 {
   // These pointers are handled by CAEN libraries.
   // Do not need to do new/delete for these.
@@ -23,7 +23,7 @@ void TWaveform::InitWaveform()
   fPreviousTime = 0;
 }
 
-void TWaveform::Config()
+void TPSD::Config()
 {
   // Think: When and how to load the parameters
   fTraceStep = true;
@@ -86,7 +86,7 @@ void TWaveform::Config()
   SetChPar();
 }
 
-void TWaveform::SetChPar()
+void TPSD::SetChPar()
 {
   CAEN_DGTZ_ErrorCode ret = CAEN_DGTZ_Success;
   for (auto iCh = 0; iCh < fNCh; iCh++) {
@@ -139,7 +139,7 @@ void TWaveform::SetChPar()
   }
 }
 
-void TWaveform::AllocateMemory()
+void TPSD::AllocateMemory()
 {
   CAEN_DGTZ_ErrorCode err;
   uint32_t size;
@@ -157,7 +157,7 @@ void TWaveform::AllocateMemory()
   PrintError(err, "AllocateEvent");
 }
 
-void TWaveform::FreeMemory()
+void TPSD::FreeMemory()
 {
   CAEN_DGTZ_ErrorCode err;
 
@@ -170,7 +170,7 @@ void TWaveform::FreeMemory()
   }
 }
 
-void TWaveform::ReadEvents()
+void TPSD::ReadEvents()
 {
   // Delete all past events
   ClearDataVec();

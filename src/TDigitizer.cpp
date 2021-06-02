@@ -1,3 +1,5 @@
+#include "TDigitizer.hpp"
+
 #include <CAENDigitizer.h>
 #include <CAENDigitizerType.h>
 
@@ -5,7 +7,6 @@
 #include <iostream>
 
 #include "ErrorCodeMap.hpp"
-#include "TDigitizer.hpp"
 
 TDigitizer::TDigitizer() : fHandler(-1) { Init(); }
 
@@ -89,21 +90,6 @@ void TDigitizer::GetDigiInfo()
   uint32_t minorNumber = atoi(&info.AMC_FirmwareRel[4]);  // xxx.yyy y is minor
   fFWrev = minorNumber;
   fFW = FWCode::Others;
-  // if (majorNumber == 128) {
-  //   fFW = FWCode::DPP_PHA;  // It will be never used at ELI?
-  // } else if (majorNumber == 130) {
-  //   fFW = FWCode::Others;
-  // } else if (majorNumber == 131) {
-  //   fFW = FWCode::DPP_PSD;
-  // } else if (majorNumber == 132) {
-  //   fFW = FWCode::DPP_PSD;
-  // } else if (majorNumber == 136) {
-  //   fFW = FWCode::DPP_PSD;  // NOTE: valid also for x725
-  // } else if (majorNumber == 139) {
-  //   fFW = FWCode::DPP_PHA;  // NOTE: valid also for x725
-  // } else {
-  //   fFW = FWCode::STD;
-  // }
 
   if (fDigiModel == 5000) {  // Hexagon
     fFW = FWCode::DPP_nPHA_724;

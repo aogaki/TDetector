@@ -110,13 +110,15 @@ class LinkPar
 
 class DigiPar
 {
+  // I do not wanna write all setter and getter
+  // Using public variables at this moment.
  public:
   DigiPar()
   {
     EnableMask = 0b1111111111111111;
     TrgoutMask = 0b1111111111111111;
     RecordLength = 256;
-    PreTrigger = 20;
+    PreTrigger = 96;
     IOLevel = CAEN_DGTZ_IOLevel_NIM;
     StartMode = START_MODE_INDEP_SW;
     SyncinMode = SYNCIN_MODE_RUN_CTRL;
@@ -139,6 +141,7 @@ class DigiPar
   uint32_t TrgoutMask;
   int RecordLength;
   int PreTrigger;
+  int PostTrigger;
   CAEN_DGTZ_IOLevel_t IOLevel;
 
   int StartMode;
@@ -161,11 +164,11 @@ class DigiPar
   {
     for (auto i = 0; i < MAX_NCH; i++) {
       EnableInput[i] = 1;
-      TrgThreshold[i] = 100;
+      TrgThreshold[i] = 1000;
       PulsePolarity[i] = CAEN_DGTZ_PulsePolarityNegative;
       // PulsePolarity[i] = CAEN_DGTZ_PulsePolarityPositive;
       BaselineDCoffset[i] = 10;
-      ZeroVoltLevel[i] = 0;  // For STD FW
+      ZeroVoltLevel[i] = 14800;  // For STD FW
       VetoWindow[i] = 0.;
       Decimation[i] = 0;
     }
@@ -182,4 +185,13 @@ class DigiPar
 
  private:
 };
+
+class MyParameters
+{
+ public:
+  DigiPar Digitizer;
+  LinkPar Link;
+};
+typedef MyParameters Parameter_t;
+
 #endif

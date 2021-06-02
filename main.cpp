@@ -10,6 +10,7 @@
 #include <vector>
 
 #include "TDetector.hpp"
+#include "TParLoader.hpp"
 
 int kbhit(void)
 {
@@ -40,17 +41,19 @@ int kbhit(void)
 int main(int argc, char *argv[])
 {
   // If you use arguments, the information should be taken before this line.
-  std::unique_ptr<TApplication> app(new TApplication("app", &argc, argv));
+  std::unique_ptr<TApplication> app{new TApplication("app", &argc, argv)};
 
   std::unique_ptr<TDetector> detector{new TDetector()};
 
-  std::vector<LinkPar> linkPar;
-  linkPar.push_back(LinkPar(CAEN_DGTZ_USB, 0, 0, 0));
-  detector->LoadLinkPar(linkPar);
+  // TParLoader loader;
+  // loader.FromFile("digiTES_Config.txt");
 
-  std::vector<DigiPar> digiPar;
-  digiPar.push_back(DigiPar());
-  detector->LoadDigiPar(digiPar);
+  std::vector<Parameter_t> parameters;
+  Parameter_t par;
+  par.Link = LinkPar(CAEN_DGTZ_USB, 0, 0, 0);
+  par.Digitizer = DigiPar();
+  parameters.push_back(par);
+  detector->LoadParameter(parameters);
 
   if (!detector->CheckAndOpen()) {
     std::cerr << "Can not start" << std::endl;
@@ -60,6 +63,8 @@ int main(int argc, char *argv[])
 
   // For plot the data
   std::unique_ptr<TGraph> graph(new TGraph(1));
+  graph->SetMaximum(18000);
+  graph->SetMinimum(0);
   std::unique_ptr<TH1D> hist(
       new TH1D("hist", "Energy distribution", 30000, 0.5, 30000.5));
   std::unique_ptr<TCanvas> canv(new TCanvas("canv", "test", 1200, 500));
@@ -76,21 +81,22 @@ int main(int argc, char *argv[])
 
   // for (auto i = 0; i < 100; i++) {
   for (auto i = 0; true; i++) {
-    detector->SendSWTrigger(100);
+    // detector->SendSWTrigger(100);
     detector->ReadEvents();
     auto data = detector->GetData();
 
-    std::cout << i << "\t" << data->size() << "\t" << (*data)[0]->Trace1[10]
-              << std::endl;
-
     const int nEve = data->size();
-    // for (auto iEve = 0; iEve < nEve; iEve++) {
-    for (auto iEve = nEve - 1; iEve < nEve; iEve++) {
+    for (auto iEve = 0; iEve < nEve; iEve++) {
       auto eve = (*data)[iEve];
-      const auto nPoint = eve->Trace1.size();
-      const auto timeStep = eve->SamplingPeriod;
-      for (auto iPoint = 0; iPoint < nPoint; iPoint++)
-        graph->SetPoint(iPoint, iPoint * timeStep, eve->Trace1[iPoint]);
+
+      if (eve->ChNumber == 3) {
+        hist->Fill(eve->ChargeLong);
+        const auto nPoint = eve->Trace1.size();
+        const auto timeStep = eve->SamplingPeriod;
+        for (auto iPoint = 0; iPoint < nPoint; iPoint++) {
+          graph->SetPoint(iPoint, iPoint * timeStep, eve->Trace1[iPoint]);
+        }
+      }
     }
     canv->cd(1);
     graph->Draw("AL");

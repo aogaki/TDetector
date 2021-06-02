@@ -21,7 +21,6 @@ class TWaveform : public TDigitizer
   void SetChPar();
 
   // Memory
-  char *fpReadoutBuffer;                 // readout buffer
   CAEN_DGTZ_UINT16_EVENT_t *fpEventStd;  // events buffer
 };
 

@@ -79,6 +79,8 @@ class TDigitizer
 
   bool IsDPP();
 
+  char *fpReadoutBuffer;  // readout buffer
+
  private:
   bool fPauseFlag;
 };

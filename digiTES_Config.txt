@@ -1,0 +1,133 @@
+########################################################################################
+# Config File Template
+########################################################################################
+
+# NOTE: time values (e.g. gate width) can be expressed as a pure number or with a specific
+# time unit. For instance, the three settings below are all equivalent:
+# GateWidth   1100    # 1100 ns (the default unit for the gate setting is ns)
+# GateWidth   1100 ns # 1100 ns
+# GateWidth   1.1 us  # 1.1 us = 1100 ns
+
+
+#***************************************************************************************
+# Board Connection Parameters:
+#***************************************************************************************
+ [BOARD 0]  Open USB 0 0            # direct to USB (desktop versions)
+#[BOARD 1]  Open USB 0 1            # direct to USB (desktop versions)
+#[BOARD 0]  Open USB 0 32100000     # V1718 - VME - digitizer (set correct base address)
+#[BOARD 0]  Open PCI 0 0 0          # direct optical link
+#[BOARD 0]  Open PCI 0 0 32100000   # V2718 - VME - digitizer (set correct base address)
+
+#***************************************************************************************
+# Common Setting (applied to all channels as default value)
+#***************************************************************************************
+[COMMON]
+
+
+#---------------------------------------------------------------------------------------
+# Acquisition Modes
+#---------------------------------------------------------------------------------------
+AcquisitionMode               MIXED             # options: LIST (timestamp, energy, psd), MIXED (list + waveform), OFF_LINE (read data from file), EMULATOR_LIST, EMULATOR_MIXED
+EventBuildMode                NONE           	# options: NONE (no channel correlation), CHREF_AND_ANYOTHER (one ref. ch. in coinc. with at least another ch.), CLOVER N M (Majority of M ch over N within time correl. win.)
+WaveformProcessor             0                 # Apply simple DPP algorithms in the software (using waveforms); 0=disabled, 3=calculate charge and tstamp
+RecordLength                  1000              # num of points in the waveform
+PreTrigger                    200               # num of point before trigger
+EventBuffering                0                 # num of events in each memory buffer (aggregate); 0=automatic. Use 1 for low rate (< 10 Hz)
+RunNumber                     0                 # set run number (use AUTO to enable automatic increment of the run number)
+
+#---------------------------------------------------------------------------------------
+# Sync and Trigger
+#---------------------------------------------------------------------------------------
+FPIOtype                      NIM               # NIM or TTL (applies to the 3 LEMO connectors on the front panel)
+StartMode                     INDEP_SW          # options: INDEP_SW, SYNCIN_1ST_SW, SYNCIN_1ST_HW, TRGIN_1ST_SW, TRGIN_1ST_HW
+SyncinMode                    TSTAMP_RESET      # options: DISABLED, TSTAMP_RESET, RUN_CTRL
+TrginMode                     DISABLED          # options: DISABLED, COMMON_TRG, COMMON_TRG_START, VETO, GATE, COINC
+VetoWindow                    0                 # 0 = as long as veto signal, otherwise width in ns
+TrgoutMode                    CHANNEL_TRIGGERS  # options: DISABLED, CHANNEL_TRIGGERS, SYNC_OUT, SQR_WAVE_1KHZ, PULSES_1KHZ, SQR_WAVE_10KHZ, PULSES_10KHZ, CLOCK
+TrgoutMask                    FF                # enable mask of the channels participating to generate TRGOUT
+
+#---------------------------------------------------------------------------------------
+# Coincidence Logic in hardware
+#---------------------------------------------------------------------------------------
+CoincMode                     DISABLED          # options: DISABLED, MAJORITY, MINORITY, PAIRED_AND, PAIRED_OR, ANTI_PAIRED_AND, COMMON_REFCH, ANTI_COMMON_REFCH, CH0_TO_ALL, AND_ALL, OR_ALL
+MajorityLevel                 3                 # Number of fired channels for MAJORITY/MINORITY
+CoincWindow                   100               # Coinc window (default unit = ns)
+
+
+#---------------------------------------------------------------------------------------
+# Input Settings
+#---------------------------------------------------------------------------------------
+EnableInput                   1                 # channels all enabled by default (can be individually disabled in [CHANNEL n] sections
+PulsePolarity                 NEGATIVE          # options: NEGATIVE, POSITIVE
+BaselineDCoffset              10                # baseline position in percent of full scale
+ZeroVoltLevel                 14800             # for non DPP firmware (StdFw), the baseline is not calcluated by the FPGA and must be set by the user with this param. Ignored in DPP firmware
+InputDynamicRange             1                 # for x730: 0=2Vpp, 1=0.5Vpp
+
+
+#---------------------------------------------------------------------------------------
+# Discriminator
+#---------------------------------------------------------------------------------------
+DiscrMode                     LED               # Discriminator type: DISABLED, LED, CFD (for PSD), RCCR2_PHA, CFD_PHA, LED_PHA (for PHA)
+TriggerThreshold              300               # threshold in ADC channels
+TrgHoldOff                    1                 # Trigger hold off (minumum time after a trigger for a new trigger to be accepted)
+TTFsmoothing                  1                 # smoothing: 0=disabled, 1, 2, 3, 4 => 2, 4, 8, 16 samples
+TTFdelay                      200               # for PHA only: typically TTDdealy = rising edge of the pulses (in ns)
+CFDdelay                      6                 # CFD delay in ns
+CFDfraction                   1                 # CFD fraction: 0=25%, 1=50%, 2=75%, 3=100%
+
+# ZC calibration (for x725, x730 and x751 only)
+EnableZCcalibr                0                 # Enable Zero-Crossing Correction table (taken from file ZCC.dat)
+ZCcalibRun                    0                 # Force a calibration run (accumulate statistics for the ZC tables)
+ZCcalibFileName               zcc.dat           # Define the file name of the ZC calibration table (overwrite same setting of sysvars.txt)
+
+#---------------------------------------------------------------------------------------
+# Charge Integration (DPP-PSD/CI)
+#---------------------------------------------------------------------------------------
+GateWidth                     1000              # gate width (long gate for the PSD). (default unit = ns)
+ShortGateWidth                50                # short gate width (default unit = ns)
+PreGate                       150               # portion of the gate before the trigger (default unit = ns)
+PileUpMode                    0                 # 0=DISABLED, 1=ENABLED (discard pile-up events)
+PurGap                        4000              # threshold for the pile-up identification
+NSBaseline                    2                 # 0=fixed, 1, 2, 3, 4 options depending on the board type (see manual)
+FixedBaseline                 0                 # imposed baseline (when NSBaseline=0)
+ChargeLLD                     0                 # suppress events with total charge < ChargeLLD (0=disabled)
+EnablePedestal                0                 # add a fixed offset = 1024 (pedestal) to the integrated charge in order to see small negative charges
+
+#---------------------------------------------------------------------------------------
+# Trapezoidal Filter (DPP-PHA)
+#---------------------------------------------------------------------------------------
+TrapRiseTime                  5000              # Trapezoid rise time (default unit = ns)
+TrapFlatTop                   1000              # Trapezoid flat top time (default unit = ns)
+TrapPoleZero                  50000             # Pole-zero compensation (default unit = ns)
+PeakingTime                   800               # peaking time from the start of the flat top (must be smaller than TrapFlatTop; typ. 80% of it)
+NSPeak                        0                 # num of samples averaged on the peak (0=1, 1=4, 2=16, 3=64)
+PeakHoldOff                   10000             # extra time to wait after the flat top before accepting a new trapezoid as good (PUR guard)
+TrapNSBaseline                5                 # 0, 1, 2, 3, 4, 5 (see PHA manual)
+
+
+#***************************************************************************************
+# Individual channel settings (overwriting default values assigned in the [COMMON] section)
+#***************************************************************************************
+
+
+#***************************************************************************************
+[BOARD 0]
+#***************************************************************************************
+[CHANNEL 0]
+# TriggerThreshold     250           # individual threshold setting for ch 0
+EnableInput  1
+[CHANNEL 1]
+# EnableInput  0    # disable channel 1 only (the others are enabled by default)
+EnableInput  1
+[CHANNEL 2]
+EnableInput  1
+[CHANNEL 3]
+EnableInput  1
+[CHANNEL 4]
+EnableInput  1
+[CHANNEL 5]
+EnableInput  1
+[CHANNEL 6]
+EnableInput  1
+[CHANNEL 7]
+EnableInput  1

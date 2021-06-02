@@ -14,8 +14,7 @@ class TDetector
   TDetector();
   ~TDetector();
 
-  void LoadLinkPar(std::vector<LinkPar> parVec) { fLinkParVec = parVec; };
-  void LoadDigiPar(std::vector<DigiPar> parVec) { fDigiParVec = parVec; };
+  void LoadParameter(std::vector<Parameter_t> parVec) { fParVec = parVec; };
 
   bool CheckAndOpen();
 
@@ -36,8 +35,7 @@ class TDetector
   std::vector<std::unique_ptr<TDigitizer>> fDigiVec;
   std::vector<EveData_t *> *fpDataVec;
 
-  std::vector<LinkPar> fLinkParVec;
-  std::vector<DigiPar> fDigiParVec;
+  std::vector<Parameter_t> fParVec;
 };
 
 #endif

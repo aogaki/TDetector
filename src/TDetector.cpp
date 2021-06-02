@@ -1,9 +1,10 @@
+#include "TDetector.hpp"
+
 #include <CAENDigitizer.h>
 
 #include <algorithm>
 #include <iostream>
 
-#include "TDetector.hpp"
 #include "TWaveform.hpp"
 
 TDetector::TDetector() {}
@@ -14,12 +15,13 @@ bool TDetector::CheckAndOpen()
 {
   CAEN_DGTZ_ErrorCode ret = CAEN_DGTZ_Success;
   // for (auto &&par : fLinkParVec) {
-  const int nDigi = fLinkParVec.size();
+  const int nDigi = fParVec.size();
   for (auto i = 0; i < nDigi; i++) {
     int handler = -1;
-    ret = CAEN_DGTZ_OpenDigitizer(
-        fLinkParVec[i].LinkType, fLinkParVec[i].LinkNum,
-        fLinkParVec[i].ConetNode, fLinkParVec[i].VMEBaseAddress, &handler);
+    auto linkPar = fParVec[i].Link;
+    ret = CAEN_DGTZ_OpenDigitizer(linkPar.LinkType, linkPar.LinkNum,
+                                  linkPar.ConetNode, linkPar.VMEBaseAddress,
+                                  &handler);
     if (ret < 0) {
       std::cerr << "CAEN_DGTZ_OpenDigitizer failed with code: " << ret
                 << std::endl;
@@ -64,10 +66,12 @@ bool TDetector::CheckAndOpen()
     }
 
     digi->SetHandler(handler);
-    digi->SetLinkPar(fLinkParVec[i]);
-    fDigiParVec[i].BrdID = i;
-    fDigiParVec[i].NumBrd = nDigi;
-    digi->SetDigiPar(fDigiParVec[i]);
+    digi->SetLinkPar(linkPar);
+
+    auto digiPar = fParVec[i].Digitizer;
+    digiPar.BrdID = i;
+    digiPar.NumBrd = nDigi;
+    digi->SetDigiPar(digiPar);
     digi->GetDigiInfo();
     fDigiVec.push_back(std::move(digi));
   }
